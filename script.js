@@ -7,7 +7,6 @@ document.getElementById('escolher-foto').addEventListener('change', function(e) 
     const file = e.target.files[0];
     if (!file) return;
 
-    // 1. Mostra a foto na tela na hora
     const reader = new FileReader();
     reader.onload = function(event) {
         if (window.viewer) { window.viewer.destroy(); }
@@ -17,22 +16,21 @@ document.getElementById('escolher-foto').addEventListener('change', function(e) 
             "autoLoad": true
         });
         
-        // 2. Envia para o Supabase sem burocracia
-        const nomeFinal = Date.now() + "-" + file.name;
+        const nomeFinal = Date.now() + "-" + file.name.replace(/\s+/g, '_');
+        
         fetch(`${SUPABASE_URL}/storage/v1/object/fotos360/${nomeFinal}`, {
             method: 'POST',
             headers: { 
                 'Authorization': 'Bearer ' + SUPABASE_KEY, 
-                'apikey': SUPABASE_KEY,
-                'Content-Type': file.type 
+                'apikey': SUPABASE_KEY
             },
             body: file
         }).then(res => {
             if (res.ok) {
                 linkPublico = `${SUPABASE_URL}/storage/v1/object/public/fotos360/${nomeFinal}`;
-                alert("✅ AGORA FOI! Foto salva. Pode compartilhar à vontade.");
+                alert("✅ FINALMENTE! Foto salva. Link liberado.");
             } else {
-                alert("❌ Erro: Verifique se o nome do Bucket no Supabase é exatamente 'fotos360'.");
+                alert("❌ ERRO DE NOME: O bucket 'fotos360' não foi encontrado. Verifique o nome no Supabase.");
             }
         });
     };
@@ -44,10 +42,6 @@ function compartilhar() {
         navigator.clipboard.writeText(linkPublico);
         alert("🔗 Link copiado!");
     } else {
-        alert("⚠️ Aguarde a foto subir primeiro.");
+        alert("⚠️ Aguarde a foto subir.");
     }
-}
-
-function baixarFoto() {
-    alert("📲 No celular: Segure o dedo na imagem e escolha 'Fazer download'.");
 }
