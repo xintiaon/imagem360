@@ -22,38 +22,43 @@ document.getElementById('escolher-foto').addEventListener('change', function(e) 
 });
 
 async function fazerUpload(file) {
-    const fileName = `${Date.now()}-${file.name}`;
-    const formData = new FormData();
-    formData.append('', file);
-
+    const nomeArquivo = `${Date.now()}-${file.name}`;
+    
     try {
-        const response = await fetch(`${SUPABASE_URL}/storage/v1/object/fotos360/${fileName}`, {
+        const response = await fetch(`${SUPABASE_URL}/storage/v1/object/fotos360/${nomeArquivo}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'apikey': SUPABASE_KEY
+                'apikey': SUPABASE_KEY,
+                'Content-Type': file.type
             },
-            body: formData
+            body: file
         });
 
         if (response.ok) {
-            linkPublico = `${SUPABASE_URL}/storage/v1/object/public/fotos360/${fileName}`;
-            console.log("Link gerado:", linkPublico);
+            // Este é o link que faz o seu botão compartilhar funcionar
+            linkPublico = `${SUPABASE_URL}/storage/v1/object/public/fotos360/${nomeArquivo}`;
+            alert("✅ SUCESSO! A foto foi salva na nuvem. Agora você pode clicar em COMPARTILHAR.");
+        } else {
+            const erroDetalhado = await response.json();
+            console.error(erroDetalhado);
+            alert("❌ Erro no Supabase. Verifique se as Policies de INSERT e SELECT estão com 'bucket_id = fotos360'.");
         }
     } catch (err) {
-        console.error("Erro no upload:", err);
+        alert("❌ Erro de conexão. Tente novamente.");
     }
 }
 
 function compartilhar() {
     if (linkPublico) {
-        navigator.clipboard.writeText(linkPublico);
-        alert("Link copiado! Envie para seus amigos: " + linkPublico);
+        navigator.clipboard.writeText(linkPublico).then(() => {
+            alert("🔗 Link copiado! Envie para quem quiser: " + linkPublico);
+        });
     } else {
-        alert("Aguarde o upload ou verifique se o bucket 'fotos360' é público.");
+        alert("⚠️ Aguarde o aviso de SUCESSO verde aparecer na tela antes de compartilhar.");
     }
 }
 
 function baixarFoto() {
-    alert("Clique com o botão direito na imagem 360 e escolha 'Salvar imagem como'.");
+    alert("📲 No celular: Segure o dedo na imagem e escolha 'Fazer download'. No PC: Botão direito > Salvar imagem.");
 }
