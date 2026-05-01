@@ -28,16 +28,17 @@ async function fazerUpload(file) {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'apikey': SUPABASE_KEY
+                'apikey': SUPABASE_KEY,
+                'Content-Type': file.type
             },
             body: file
         });
 
         if (response.ok) {
             linkPublico = `${SUPABASE_URL}/storage/v1/object/public/fotos360/${nomeArquivo}`;
-            alert("✅ SUCESSO! Foto salva. Agora o botão COMPARTILHAR funciona!");
+            alert("✅ SUCESSO! A foto foi salva. Agora o botão COMPARTILHAR funciona!");
         } else {
-            alert("❌ Erro de permissão: Verifique se as Policies no Supabase estão ativas.");
+            alert("❌ Erro de permissão: Tente mudar a expressão das suas Policies para 'true' no Supabase.");
         }
     } catch (err) {
         alert("❌ Erro de conexão com o servidor.");
