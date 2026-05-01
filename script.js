@@ -7,7 +7,7 @@ document.getElementById('escolher-foto').addEventListener('change', function(e) 
     const file = e.target.files[0];
     if (!file) return;
 
-    // Mostra no visualizador
+    // 1. Mostra a foto na tela na hora
     const reader = new FileReader();
     reader.onload = function(event) {
         if (window.viewer) { window.viewer.destroy(); }
@@ -17,18 +17,22 @@ document.getElementById('escolher-foto').addEventListener('change', function(e) 
             "autoLoad": true
         });
         
-        // Envia direto
+        // 2. Envia para o Supabase sem burocracia
         const nomeFinal = Date.now() + "-" + file.name;
         fetch(`${SUPABASE_URL}/storage/v1/object/fotos360/${nomeFinal}`, {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + SUPABASE_KEY, 'apikey': SUPABASE_KEY },
+            headers: { 
+                'Authorization': 'Bearer ' + SUPABASE_KEY, 
+                'apikey': SUPABASE_KEY,
+                'Content-Type': file.type 
+            },
             body: file
         }).then(res => {
             if (res.ok) {
                 linkPublico = `${SUPABASE_URL}/storage/v1/object/public/fotos360/${nomeFinal}`;
-                alert("✅ AGORA FOI! Foto salva. Pode compartilhar.");
+                alert("✅ AGORA FOI! Foto salva. Pode compartilhar à vontade.");
             } else {
-                alert("❌ O porteiro do Supabase ainda está barrando. Verifique a regra 'All operations'.");
+                alert("❌ Erro: Verifique se o nome do Bucket no Supabase é exatamente 'fotos360'.");
             }
         });
     };
@@ -40,10 +44,10 @@ function compartilhar() {
         navigator.clipboard.writeText(linkPublico);
         alert("🔗 Link copiado!");
     } else {
-        alert("⚠️ Aguarde o aviso de sucesso.");
+        alert("⚠️ Aguarde a foto subir primeiro.");
     }
 }
 
 function baixarFoto() {
-    alert("📲 Segure o dedo na imagem e escolha 'Fazer download'.");
+    alert("📲 No celular: Segure o dedo na imagem e escolha 'Fazer download'.");
 }
