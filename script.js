@@ -23,39 +23,34 @@ document.getElementById('escolher-foto').addEventListener('change', function(e) 
 
 async function fazerUpload(file) {
     const nomeArquivo = `${Date.now()}-${file.name}`;
-    
     try {
         const response = await fetch(`${SUPABASE_URL}/storage/v1/object/fotos360/${nomeArquivo}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'apikey': SUPABASE_KEY,
-                'Content-Type': file.type
+                'apikey': SUPABASE_KEY
             },
             body: file
         });
 
         if (response.ok) {
-            // Este é o link que faz o seu botão compartilhar funcionar
             linkPublico = `${SUPABASE_URL}/storage/v1/object/public/fotos360/${nomeArquivo}`;
-            alert("✅ SUCESSO! A foto foi salva na nuvem. Agora você pode clicar em COMPARTILHAR.");
+            alert("✅ SUCESSO! Foto salva. Agora o botão COMPARTILHAR funciona!");
         } else {
-            const erroDetalhado = await response.json();
-            console.error(erroDetalhado);
-            alert("❌ Erro no Supabase. Verifique se as Policies de INSERT e SELECT estão com 'bucket_id = fotos360'.");
+            alert("❌ Erro de permissão: Verifique se as Policies no Supabase estão ativas.");
         }
     } catch (err) {
-        alert("❌ Erro de conexão. Tente novamente.");
+        alert("❌ Erro de conexão com o servidor.");
     }
 }
 
 function compartilhar() {
     if (linkPublico) {
         navigator.clipboard.writeText(linkPublico).then(() => {
-            alert("🔗 Link copiado! Envie para quem quiser: " + linkPublico);
+            alert("🔗 Link copiado com sucesso!");
         });
     } else {
-        alert("⚠️ Aguarde o aviso de SUCESSO verde aparecer na tela antes de compartilhar.");
+        alert("⚠️ Aguarde o aviso de SUCESSO antes de compartilhar.");
     }
 }
 
